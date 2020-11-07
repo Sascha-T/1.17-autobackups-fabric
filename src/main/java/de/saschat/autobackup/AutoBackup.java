@@ -1,5 +1,7 @@
 package de.saschat.autobackup;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.fabricmc.api.DedicatedServerModInitializer;
@@ -14,6 +16,9 @@ import net.minecraft.text.LiteralText;
 
 
 import java.io.File;
+import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Timer;
 import java.util.regex.Pattern;
@@ -25,6 +30,17 @@ public class AutoBackup implements DedicatedServerModInitializer {
     public static MinecraftServer SERVER;
     public static Timer TIMER = new Timer(true);
     public static BackupTask TASK = new BackupTask();
+
+    public static Config DEFAULT_CONFIG = defaultConfig();
+    public static Config CONFIG = DEFAULT_CONFIG;
+
+    private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();;
+
+    public static Config defaultConfig() {
+        Config cfg = new Config();
+        cfg.backupInterval = 30;
+        return cfg;
+    }
 
     @Override
     public void onInitializeServer() {
@@ -74,10 +90,36 @@ public class AutoBackup implements DedicatedServerModInitializer {
 
     public void onServerStarted(MinecraftServer minecraftServer) {
         AutoBackup.SERVER = minecraftServer;
+
         File save_to = Paths.get(minecraftServer.getRunDirectory().getPath(), "backup").toFile();
         save_to.mkdir();
+
+        File config = Paths.get(minecraftServer.getRunDirectory().getPath(), "backup.json").toFile();
+        if(!config.exists()) {
+            try {
+                String a = GSON.toJson(DEFAULT_CONFIG);
+                FileWriter myWriter = new FileWriter(config.getAbsoluteFile().toString());
+                myWriter.write(a);
+                myWriter.flush();
+                myWriter.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            try {
+                String cfg = new String(Files.readAllBytes(Paths.get(config.getAbsolutePath())), StandardCharsets.UTF_8);
+                CONFIG = GSON.fromJson(cfg, Config.class);
+                if(CONFIG.backupInterval == 0) {
+                    CONFIG = DEFAULT_CONFIG;
+                    throw new RuntimeException("Invalid config.");
+                }
+            } catch(Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
         System.out.println("Server started...");
-        TIMER.scheduleAtFixedRate(TASK, 0, 30 * 60 * 1000);
+        TIMER.scheduleAtFixedRate(TASK, CONFIG.backupInterval * 60 * 1000, CONFIG.backupInterval * 60 * 1000);
     }
 
 
