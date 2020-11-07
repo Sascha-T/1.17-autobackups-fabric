@@ -15,13 +15,17 @@ import net.minecraft.text.LiteralText;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Timer;
 import java.util.regex.Pattern;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 @Environment(EnvType.SERVER)
 public class AutoBackup implements DedicatedServerModInitializer {
-    public static MinecraftServer server;
+    public static MinecraftServer SERVER;
+    public static Timer TIMER = new Timer(true);
+    public static BackupTask TASK = new BackupTask();
+
     @Override
     public void onInitializeServer() {
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
@@ -69,10 +73,11 @@ public class AutoBackup implements DedicatedServerModInitializer {
     }
 
     public void onServerStarted(MinecraftServer minecraftServer) {
-        AutoBackup.server = minecraftServer;
+        AutoBackup.SERVER = minecraftServer;
         File save_to = Paths.get(minecraftServer.getRunDirectory().getPath(), "backup").toFile();
         save_to.mkdir();
         System.out.println("Server started...");
+        TIMER.scheduleAtFixedRate(TASK, 0, 30 * 60 * 1000);
     }
 
 

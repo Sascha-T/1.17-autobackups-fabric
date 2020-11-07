@@ -42,25 +42,25 @@ public class BackupThread extends Thread {
         try {
             mutex.lock();
             System.out.println("Disabling autosave...");
-            Iterable<ServerWorld> worlds = AutoBackup.server.getWorlds();
+            Iterable<ServerWorld> worlds = AutoBackup.SERVER.getWorlds();
             HashMap<ServerWorld, Boolean> map = new HashMap<>();
             for (ServerWorld w: worlds) {
                 w.savingDisabled = true;
             }
             System.out.println("Disabled autosave.");
 
-            AutoBackup.server.getPlayerManager().saveAllPlayerData();
-            AutoBackup.server.save(true, true, true);
+            AutoBackup.SERVER.getPlayerManager().saveAllPlayerData();
+            AutoBackup.SERVER.save(true, true, true);
             System.out.println("Saved all.");
 
-            File save = AutoBackup.server.getSavePath(WorldSavePath.ROOT).toFile();
+            File save = AutoBackup.SERVER.getSavePath(WorldSavePath.ROOT).toFile();
             String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(Date.from(Instant.now()));
 
             String name = date + "-" + this.suffix;
             Path save_to;
             int num = 0;
             while (true) {
-                save_to = Paths.get(AutoBackup.server.getRunDirectory().getPath(),"backup", name + "-" + num + ".zip");
+                save_to = Paths.get(AutoBackup.SERVER.getRunDirectory().getPath(),"backup", name + "-" + num + ".zip");
                 File f = new File(save_to.toAbsolutePath().toString());
                 if(!f.exists()) {
                     break;
