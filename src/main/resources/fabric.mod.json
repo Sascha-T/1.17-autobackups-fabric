@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "autobackup",
+  "version": "${version}",
+  "name": "AutoBackup",
+  "description": "aaaaaaaaaa",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/AutoBackup/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "server": [
+      "de.saschat.autobackup.AutoBackup"
+    ]
+  },
+  "mixins": [
+    "AutoBackup.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.10.6+build.214",
+    "fabric": "*",
+    "minecraft": "1.17-alpha.20.45.a"
+  }
+}
