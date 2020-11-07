@@ -1,4 +1,6 @@
-# Fabric AutoBackups for 1.17
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Sascha-T/fabric-autobackups?style=plastic)
+
+# Fabric AutoBackups
 Downloads on the releases page.
 
 ## Compiling
